@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../widgets/custom_date_picker_form_field.dart';
 import '../../widgets/custom_text_form_field.dart';
 
 class AddEmployee extends StatefulWidget {
@@ -13,8 +14,8 @@ class _AddEmployeeState extends State<AddEmployee> {
   final TextEditingController _username = TextEditingController();
   final TextEditingController _firstName = TextEditingController();
   final TextEditingController _lastName = TextEditingController();
+  final TextEditingController _dob = TextEditingController();
 
-  String username = '';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,6 +56,12 @@ class _AddEmployeeState extends State<AddEmployee> {
               type: TextInputType.name,
             ),
             SizedBox(height: 16.0),
+            CustomDatePickerFormField(
+              controller: _dob,
+              labelText: "Date of Birth",
+              errorText: "DOB cannot be empty",
+              type: TextInputType.datetime,
+            ),
           ],
         ),
       ),

@@ -1,42 +1,48 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
 class CustomTextFormField extends StatelessWidget {
-  final TextEditingController controller;
-  final String labelText;
-  final String errorText;
-  final TextInputType type;
-  const CustomTextFormField({
-    Key? key,
-    required this.controller,
-    required this.labelText,
-    required this.errorText,
-    required this.type,
-  }) : super(key: key);
+  final TextEditingController _controller;
+  final String _labelText;
+  final String _errorText;
+  final TextInputType _type;
+  const CustomTextFormField(
+      {Key? key,
+      required TextEditingController controller,
+      required String labelText,
+      required String errorText,
+      required TextInputType type})
+      : _controller = controller,
+        _labelText = labelText,
+        _errorText = errorText,
+        _type = type,
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      controller: controller,
-      keyboardType: type,
+      controller: _controller,
+      keyboardType: _type,
       decoration: InputDecoration(
-        label: Text(labelText),
+        label: Text(_labelText),
         alignLabelWithHint: true,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.0),
           borderSide: BorderSide(color: Colors.grey.shade50),
         ),
         contentPadding:
-        const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return errorText;
+          return _errorText;
         }
-        return controller.text = value.trim();
+        return _controller.text = value.trim();
       },
       onFieldSubmitted: (value) {
-        controller.text = value.trim();
-        print(controller.text);
+        _controller.text = value.trim();
+        log("Response ===>>> ${_controller.text}");
       },
     );
   }
