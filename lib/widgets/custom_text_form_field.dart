@@ -1,8 +1,7 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 
 class CustomTextFormField extends StatelessWidget {
+
   final TextEditingController _controller;
   final String _labelText;
   final String _errorText;
@@ -42,7 +41,7 @@ class CustomTextFormField extends StatelessWidget {
       },
       onFieldSubmitted: (value) {
         _controller.text = value.trim();
-        log("Response ===>>> ${_controller.text}");
+        // log("Response ===>>> ${_controller.text}");
       },
     );
   }

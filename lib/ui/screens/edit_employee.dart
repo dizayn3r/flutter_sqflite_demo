@@ -7,15 +7,17 @@ import '../../routes/routes.dart';
 import '../../widgets/custom_date_picker_form_field.dart';
 import '../../widgets/custom_text_form_field.dart';
 
-class AddEmployee extends StatefulWidget {
-  const AddEmployee({Key? key}) : super(key: key);
+class EditEmployee extends StatefulWidget {
+  final int id;
+  const EditEmployee({Key? key, required this.id}) : super(key: key);
 
   @override
-  State<AddEmployee> createState() => _AddEmployeeState();
+  State<EditEmployee> createState() => _EditEmployeeState();
 }
 
-class _AddEmployeeState extends State<AddEmployee> {
+class _EditEmployeeState extends State<EditEmployee> {
   late AppDb _db;
+  late EmployeeData _employeeData;
   final TextEditingController _username = TextEditingController();
   final TextEditingController _firstName = TextEditingController();
   final TextEditingController _lastName = TextEditingController();
@@ -28,6 +30,7 @@ class _AddEmployeeState extends State<AddEmployee> {
   @override
   void initState() {
     _db = AppDb();
+    getEmployee();
     super.initState();
   }
 
@@ -69,20 +72,29 @@ class _AddEmployeeState extends State<AddEmployee> {
     });
   }
 
-  void addEmployee() {
+  Future<void> getEmployee() async {
+    _employeeData = await _db.getEmployee(widget.id);
+    _username.text = _employeeData.userName;
+    _firstName.text = _employeeData.firstName;
+    _lastName.text = _employeeData.lastName;
+    _dateOfBirth.text = DateFormat('dd/MM/yyyy').format(_employeeData.dob);
+  }
+
+  void editEmployee() {
     final isValid = _formKey.currentState?.validate();
     if (isValid != null && isValid) {
       final entity = EmployeeCompanion(
+        id: drift.Value(widget.id),
         userName: drift.Value(_username.text),
         firstName: drift.Value(_firstName.text),
         lastName: drift.Value(_lastName.text),
         dob: drift.Value(selectedDate),
       );
-      _db.insertEmployee(entity).then(
+      _db.updateEmployee(entity).then(
             (value) => ScaffoldMessenger.of(context).showMaterialBanner(
               MaterialBanner(
                 backgroundColor: Colors.white,
-                content: Text('New employee added: $value'),
+                content: Text('Employee details updated: $value'),
                 actions: [
                   ElevatedButton(
                     onPressed: () {
@@ -99,25 +111,52 @@ class _AddEmployeeState extends State<AddEmployee> {
     }
   }
 
+  void deleteEmployee() {
+    _db.deleteEmployee(widget.id).then(
+          (value) => ScaffoldMessenger.of(context).showMaterialBanner(
+            MaterialBanner(
+              backgroundColor: Colors.white,
+              content: Text('Employee record deleted: $value'),
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+                    Navigator.pushNamedAndRemoveUntil(
+                        context, Routes.home, (route) => false);
+                  },
+                  child: const Text('Close'),
+                )
+              ],
+            ),
+          ),
+        );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Add Employee'),
+        title: const Text('Edit Employee'),
         actions: [
           IconButton(
             icon: const Icon(Icons.save_rounded),
-            onPressed: addEmployee,
+            onPressed: editEmployee,
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_rounded),
+            onPressed: deleteEmployee,
           ),
         ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
-          key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Text("Employee ID: ${widget.id}"),
+              const SizedBox(height: 16.0),
               CustomTextFormField(
                 controller: _username,
                 labelText: 'User Name',

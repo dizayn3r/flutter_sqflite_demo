@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../ui/screens/edit_employee.dart';
 import '../ui/screens/home_screen.dart';
 import '../ui/screens/add_employee.dart';
 
@@ -8,13 +9,22 @@ class Routes {
 
   static const home = '/';
   static const add_employee = '/add_employee';
+  static const edit_employee = 'edit_employee';
 
   static Route<dynamic> getRoute(RouteSettings settings) {
+
+    final args = settings.arguments;
+
     switch (settings.name) {
       case Routes.home:
         return MaterialPageRoute(builder: (_) => const HomeScreen());
       case Routes.add_employee:
         return MaterialPageRoute(builder: (_) => const AddEmployee());
+      case Routes.edit_employee:
+        if(args is int){
+          return MaterialPageRoute(builder: (_) => EditEmployee(id: args));
+        }
+        return _errorRoute();
       default:
         return _errorRoute();
     }
