@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:drift/drift.dart' as drift;
 import 'package:flutter_sqflite_demo/data/local/db/app_db.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../../routes/routes.dart';
 import '../../widgets/custom_date_picker_form_field.dart';
@@ -16,7 +17,6 @@ class EditEmployee extends StatefulWidget {
 }
 
 class _EditEmployeeState extends State<EditEmployee> {
-  late AppDb _db;
   late EmployeeData _employeeData;
   final TextEditingController _username = TextEditingController();
   final TextEditingController _firstName = TextEditingController();
@@ -29,14 +29,12 @@ class _EditEmployeeState extends State<EditEmployee> {
 
   @override
   void initState() {
-    _db = AppDb();
     getEmployee();
     super.initState();
   }
 
   @override
   void dispose() {
-    _db.close();
     _username.dispose();
     _firstName.dispose();
     _lastName.dispose();
@@ -73,7 +71,7 @@ class _EditEmployeeState extends State<EditEmployee> {
   }
 
   Future<void> getEmployee() async {
-    _employeeData = await _db.getEmployee(widget.id);
+    _employeeData = await Provider.of<AppDb>(context, listen: false).getEmployee(widget.id);
     _username.text = _employeeData.userName;
     _firstName.text = _employeeData.firstName;
     _lastName.text = _employeeData.lastName;
@@ -82,7 +80,7 @@ class _EditEmployeeState extends State<EditEmployee> {
 
   void editEmployee() {
     final isValid = _formKey.currentState?.validate();
-    if (isValid != null && isValid) {
+    if (isValid != null) {
       final entity = EmployeeCompanion(
         id: drift.Value(widget.id),
         userName: drift.Value(_username.text),
@@ -90,7 +88,7 @@ class _EditEmployeeState extends State<EditEmployee> {
         lastName: drift.Value(_lastName.text),
         dob: drift.Value(selectedDate),
       );
-      _db.updateEmployee(entity).then(
+      Provider.of<AppDb>(context,listen: false).updateEmployee(entity).then(
             (value) => ScaffoldMessenger.of(context).showMaterialBanner(
               MaterialBanner(
                 backgroundColor: Colors.white,
@@ -111,8 +109,9 @@ class _EditEmployeeState extends State<EditEmployee> {
     }
   }
 
+  //Delete employee
   void deleteEmployee() {
-    _db.deleteEmployee(widget.id).then(
+    Provider.of<AppDb>(context,listen: false).deleteEmployee(widget.id).then(
           (value) => ScaffoldMessenger.of(context).showMaterialBanner(
             MaterialBanner(
               backgroundColor: Colors.white,

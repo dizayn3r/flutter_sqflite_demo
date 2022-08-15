@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:drift/drift.dart' as drift;
 import 'package:flutter_sqflite_demo/data/local/db/app_db.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../../routes/routes.dart';
 import '../../widgets/custom_date_picker_form_field.dart';
@@ -15,7 +16,6 @@ class AddEmployee extends StatefulWidget {
 }
 
 class _AddEmployeeState extends State<AddEmployee> {
-  late AppDb _db;
   final TextEditingController _username = TextEditingController();
   final TextEditingController _firstName = TextEditingController();
   final TextEditingController _lastName = TextEditingController();
@@ -27,13 +27,11 @@ class _AddEmployeeState extends State<AddEmployee> {
 
   @override
   void initState() {
-    _db = AppDb();
     super.initState();
   }
 
   @override
   void dispose() {
-    _db.close();
     _username.dispose();
     _firstName.dispose();
     _lastName.dispose();
@@ -71,14 +69,14 @@ class _AddEmployeeState extends State<AddEmployee> {
 
   void addEmployee() {
     final isValid = _formKey.currentState?.validate();
-    if (isValid != null && isValid) {
+    if (isValid != null ) {
       final entity = EmployeeCompanion(
         userName: drift.Value(_username.text),
         firstName: drift.Value(_firstName.text),
         lastName: drift.Value(_lastName.text),
         dob: drift.Value(selectedDate),
       );
-      _db.insertEmployee(entity).then(
+      Provider.of<AppDb>(context,listen: false).insertEmployee(entity).then(
             (value) => ScaffoldMessenger.of(context).showMaterialBanner(
               MaterialBanner(
                 backgroundColor: Colors.white,

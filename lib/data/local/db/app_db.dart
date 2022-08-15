@@ -31,6 +31,10 @@ class AppDb extends _$AppDb {
     return await select(employee).get();
   }
 
+  Stream<List<EmployeeData>> getEmployeesStream() {
+    return select(employee).watch();
+  }
+
   //Get employee data by id
   Future<EmployeeData> getEmployee(int id) async {
     return await (select(employee)..where((tbl) => tbl.id.equals(id)))

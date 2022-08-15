@@ -38,7 +38,8 @@ dependencies:
   sqlite3_flutter_libs:
   path_provider:
   path:
-  intl: ^0.17.0
+  intl:
+  provider:
 
 dev_dependencies:
   flutter_test:

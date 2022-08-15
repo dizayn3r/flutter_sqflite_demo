@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_sqflite_demo/data/local/db/app_db.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../../routes/routes.dart';
 
@@ -13,17 +14,14 @@ class EmployeeStreamScreen extends StatefulWidget {
 
 class _EmployeeStreamScreenState extends State<EmployeeStreamScreen> {
 
-  late AppDb _db;
 
   @override
   void initState() {
-    _db = AppDb();
     super.initState();
   }
 
   @override
   void dispose() {
-    _db.close();
     super.dispose();
   }
 
@@ -34,15 +32,15 @@ class _EmployeeStreamScreenState extends State<EmployeeStreamScreen> {
         centerTitle: true,
         title: const Text('Employee Stream'),
       ),
-      body: FutureBuilder<List<EmployeeData>>(
-        future: _db.getEmployees(),
+      body: StreamBuilder<List<EmployeeData>>(
+        stream: Provider.of<AppDb>(context).getEmployeesStream(),
         builder: (context, snapshot) {
           final List<EmployeeData>? employees = snapshot.data;
-          if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
+          // if (snapshot.connectionState != ConnectionState.done) {
+          //   return const Center(
+          //     child: CircularProgressIndicator(),
+          //   );
+          // }
 
           //Show error
           if (snapshot.hasError) {
