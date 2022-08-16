@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_sqflite_demo/notifiers/employee_notifier.dart';
+import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 
 import 'data/local/db/app_db.dart';
@@ -7,10 +9,15 @@ import 'ui/screens/home_screen.dart';
 
 void main() {
   runApp(
-    Provider(
-      create: (context) => AppDb(),
+    MultiProvider(
+      providers: [
+        Provider.value(value: AppDb()),
+        ChangeNotifierProxyProvider<AppDb , EmployeeNotifier>(
+          create: (context) => EmployeeNotifier(),
+          update: (context,  db, notifier) => notifier!..initAppDb(db)..getEmployeeFuture(),
+        ),
+      ],
       child: const MyApp(),
-      dispose: (context, AppDb db) => db.close(),
     ),
   );
 }

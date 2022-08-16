@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:drift/drift.dart' as drift;
 import 'package:flutter_sqflite_demo/data/local/db/app_db.dart';
+import 'package:flutter_sqflite_demo/notifiers/employee_notifier.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -25,8 +26,12 @@ class _AddEmployeeState extends State<AddEmployee> {
 
   DateTime selectedDate = DateTime.now();
 
+  late EmployeeNotifier _employeeNotifier;
+
   @override
   void initState() {
+    _employeeNotifier = Provider.of<EmployeeNotifier>(context, listen: false);
+    _employeeNotifier.addListener(providerListener);
     super.initState();
   }
 
@@ -36,6 +41,7 @@ class _AddEmployeeState extends State<AddEmployee> {
     _firstName.dispose();
     _lastName.dispose();
     _dateOfBirth.dispose();
+    _employeeNotifier.dispose();
     super.dispose();
   }
 
@@ -76,24 +82,51 @@ class _AddEmployeeState extends State<AddEmployee> {
         lastName: drift.Value(_lastName.text),
         dob: drift.Value(selectedDate),
       );
-      Provider.of<AppDb>(context,listen: false).insertEmployee(entity).then(
-            (value) => ScaffoldMessenger.of(context).showMaterialBanner(
-              MaterialBanner(
-                backgroundColor: Colors.white,
-                content: Text('New employee added: $value'),
-                actions: [
-                  ElevatedButton(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-                      Navigator.pushNamedAndRemoveUntil(
-                          context, Routes.home, (route) => false);
-                    },
-                    child: const Text('Close'),
-                  )
-                ],
-              ),
-            ),
-          );
+
+
+      context.read<EmployeeNotifier>().createEmployee(entity);
+
+
+      // Provider.of<AppDb>(context,listen: false).insertEmployee(entity).then(
+      //       (value) => ScaffoldMessenger.of(context).showMaterialBanner(
+      //     MaterialBanner(
+      //       backgroundColor: Colors.white,
+      //       content: Text('New employee added: $value'),
+      //       actions: [
+      //         ElevatedButton(
+      //           onPressed: () {
+      //             ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+      //             Navigator.pushNamedAndRemoveUntil(
+      //                 context, Routes.home, (route) => false);
+      //           },
+      //           child: const Text('Close'),
+      //         )
+      //       ],
+      //     ),
+      //   ),
+      // );
+      
+    }
+  }
+
+  void providerListener(){
+    if(_employeeNotifier.isAdded){
+      ScaffoldMessenger.of(context).showMaterialBanner(
+        MaterialBanner(
+          backgroundColor: Colors.white,
+          content: const Text('New employee added.'),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+                Navigator.pushNamedAndRemoveUntil(
+                    context, Routes.home, (route) => false);
+              },
+              child: const Text('Close'),
+            )
+          ],
+        ),
+      );
     }
   }
 

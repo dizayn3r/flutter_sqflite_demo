@@ -4,6 +4,7 @@ import 'package:flutter_sqflite_demo/data/local/db/app_db.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../notifiers/employee_notifier.dart';
 import '../../routes/routes.dart';
 import '../../widgets/custom_date_picker_form_field.dart';
 import '../../widgets/custom_text_form_field.dart';
@@ -27,9 +28,13 @@ class _EditEmployeeState extends State<EditEmployee> {
 
   DateTime selectedDate = DateTime.now();
 
+  late EmployeeNotifier _employeeNotifier;
+
   @override
   void initState() {
     getEmployee();
+    _employeeNotifier = Provider.of<EmployeeNotifier>(context, listen: false);
+    _employeeNotifier.addListener(providerListener);
     super.initState();
   }
 
@@ -78,9 +83,56 @@ class _EditEmployeeState extends State<EditEmployee> {
     _dateOfBirth.text = DateFormat('dd/MM/yyyy').format(_employeeData.dob);
   }
 
+  void providerListener(){
+    if(_employeeNotifier.isUpdated){
+      updateListener();
+    }
+    if(_employeeNotifier.isDeleted){
+      deleteListener();
+    }
+  }
+
+  void updateListener(){
+      ScaffoldMessenger.of(context).showMaterialBanner(
+        MaterialBanner(
+          backgroundColor: Colors.white,
+          content: const Text('Employee details updated.'),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+                Navigator.pushNamedAndRemoveUntil(
+                    context, Routes.home, (route) => false);
+              },
+              child: const Text('Close'),
+            )
+          ],
+        ),
+      );
+  }
+
+  void deleteListener(){
+      ScaffoldMessenger.of(context).showMaterialBanner(
+        MaterialBanner(
+          backgroundColor: Colors.white,
+          content: const Text('Employee record deleted.'),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+                Navigator.pushNamedAndRemoveUntil(
+                    context, Routes.home, (route) => false);
+              },
+              child: const Text('Close'),
+            )
+          ],
+        ),
+      );
+  }
+
   void editEmployee() {
     final isValid = _formKey.currentState?.validate();
-    if (isValid != null) {
+    if (isValid != null && isValid) {
       final entity = EmployeeCompanion(
         id: drift.Value(widget.id),
         userName: drift.Value(_username.text),
@@ -88,47 +140,52 @@ class _EditEmployeeState extends State<EditEmployee> {
         lastName: drift.Value(_lastName.text),
         dob: drift.Value(selectedDate),
       );
-      Provider.of<AppDb>(context,listen: false).updateEmployee(entity).then(
-            (value) => ScaffoldMessenger.of(context).showMaterialBanner(
-              MaterialBanner(
-                backgroundColor: Colors.white,
-                content: Text('Employee details updated: $value'),
-                actions: [
-                  ElevatedButton(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-                      Navigator.pushNamedAndRemoveUntil(
-                          context, Routes.home, (route) => false);
-                    },
-                    child: const Text('Close'),
-                  )
-                ],
-              ),
-            ),
-          );
+
+      context.read<EmployeeNotifier>().updateEmployee(entity);
+
+      // Provider.of<AppDb>(context,listen: false).updateEmployee(entity).then(
+      //       (value) => ScaffoldMessenger.of(context).showMaterialBanner(
+      //         MaterialBanner(
+      //           backgroundColor: Colors.white,
+      //           content: Text('Employee details updated: $value'),
+      //           actions: [
+      //             ElevatedButton(
+      //               onPressed: () {
+      //                 ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+      //                 Navigator.pushNamedAndRemoveUntil(
+      //                     context, Routes.home, (route) => false);
+      //               },
+      //               child: const Text('Close'),
+      //             )
+      //           ],
+      //         ),
+      //       ),
+      //     );
     }
   }
 
   //Delete employee
   void deleteEmployee() {
-    Provider.of<AppDb>(context,listen: false).deleteEmployee(widget.id).then(
-          (value) => ScaffoldMessenger.of(context).showMaterialBanner(
-            MaterialBanner(
-              backgroundColor: Colors.white,
-              content: Text('Employee record deleted: $value'),
-              actions: [
-                ElevatedButton(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-                    Navigator.pushNamedAndRemoveUntil(
-                        context, Routes.home, (route) => false);
-                  },
-                  child: const Text('Close'),
-                )
-              ],
-            ),
-          ),
-        );
+    context.read<EmployeeNotifier>().deleteEmployee(widget.id);
+
+    // Provider.of<AppDb>(context,listen: false).deleteEmployee(widget.id).then(
+    //       (value) => ScaffoldMessenger.of(context).showMaterialBanner(
+    //         MaterialBanner(
+    //           backgroundColor: Colors.white,
+    //           content: Text('Employee record deleted: $value'),
+    //           actions: [
+    //             ElevatedButton(
+    //               onPressed: () {
+    //                 ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+    //                 Navigator.pushNamedAndRemoveUntil(
+    //                     context, Routes.home, (route) => false);
+    //               },
+    //               child: const Text('Close'),
+    //             )
+    //           ],
+    //         ),
+    //       ),
+    //     );
   }
 
   @override

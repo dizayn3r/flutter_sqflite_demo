@@ -33,7 +33,7 @@ class _EmployeeStreamScreenState extends State<EmployeeStreamScreen> {
         title: const Text('Employee Stream'),
       ),
       body: StreamBuilder<List<EmployeeData>>(
-        stream: Provider.of<AppDb>(context).getEmployeesStream(),
+        stream: Provider.of<AppDb>(context).getEmployeeStream(),
         builder: (context, snapshot) {
           final List<EmployeeData>? employees = snapshot.data;
           // if (snapshot.connectionState != ConnectionState.done) {

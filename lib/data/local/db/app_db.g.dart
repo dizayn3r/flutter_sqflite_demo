@@ -13,12 +13,14 @@ class EmployeeData extends DataClass implements Insertable<EmployeeData> {
   final String firstName;
   final String lastName;
   final DateTime dob;
+  final int? isActive;
   const EmployeeData(
       {required this.id,
       required this.userName,
       required this.firstName,
       required this.lastName,
-      required this.dob});
+      required this.dob,
+      this.isActive});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -27,6 +29,9 @@ class EmployeeData extends DataClass implements Insertable<EmployeeData> {
     map['first_name'] = Variable<String>(firstName);
     map['last_name'] = Variable<String>(lastName);
     map['date_of_birth'] = Variable<DateTime>(dob);
+    if (!nullToAbsent || isActive != null) {
+      map['is_active'] = Variable<int>(isActive);
+    }
     return map;
   }
 
@@ -37,6 +42,9 @@ class EmployeeData extends DataClass implements Insertable<EmployeeData> {
       firstName: Value(firstName),
       lastName: Value(lastName),
       dob: Value(dob),
+      isActive: isActive == null && nullToAbsent
+          ? const Value.absent()
+          : Value(isActive),
     );
   }
 
@@ -49,6 +57,7 @@ class EmployeeData extends DataClass implements Insertable<EmployeeData> {
       firstName: serializer.fromJson<String>(json['firstName']),
       lastName: serializer.fromJson<String>(json['lastName']),
       dob: serializer.fromJson<DateTime>(json['dob']),
+      isActive: serializer.fromJson<int?>(json['isActive']),
     );
   }
   @override
@@ -60,6 +69,7 @@ class EmployeeData extends DataClass implements Insertable<EmployeeData> {
       'firstName': serializer.toJson<String>(firstName),
       'lastName': serializer.toJson<String>(lastName),
       'dob': serializer.toJson<DateTime>(dob),
+      'isActive': serializer.toJson<int?>(isActive),
     };
   }
 
@@ -68,13 +78,15 @@ class EmployeeData extends DataClass implements Insertable<EmployeeData> {
           String? userName,
           String? firstName,
           String? lastName,
-          DateTime? dob}) =>
+          DateTime? dob,
+          Value<int?> isActive = const Value.absent()}) =>
       EmployeeData(
         id: id ?? this.id,
         userName: userName ?? this.userName,
         firstName: firstName ?? this.firstName,
         lastName: lastName ?? this.lastName,
         dob: dob ?? this.dob,
+        isActive: isActive.present ? isActive.value : this.isActive,
       );
   @override
   String toString() {
@@ -83,13 +95,15 @@ class EmployeeData extends DataClass implements Insertable<EmployeeData> {
           ..write('userName: $userName, ')
           ..write('firstName: $firstName, ')
           ..write('lastName: $lastName, ')
-          ..write('dob: $dob')
+          ..write('dob: $dob, ')
+          ..write('isActive: $isActive')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, userName, firstName, lastName, dob);
+  int get hashCode =>
+      Object.hash(id, userName, firstName, lastName, dob, isActive);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -98,7 +112,8 @@ class EmployeeData extends DataClass implements Insertable<EmployeeData> {
           other.userName == this.userName &&
           other.firstName == this.firstName &&
           other.lastName == this.lastName &&
-          other.dob == this.dob);
+          other.dob == this.dob &&
+          other.isActive == this.isActive);
 }
 
 class EmployeeCompanion extends UpdateCompanion<EmployeeData> {
@@ -107,12 +122,14 @@ class EmployeeCompanion extends UpdateCompanion<EmployeeData> {
   final Value<String> firstName;
   final Value<String> lastName;
   final Value<DateTime> dob;
+  final Value<int?> isActive;
   const EmployeeCompanion({
     this.id = const Value.absent(),
     this.userName = const Value.absent(),
     this.firstName = const Value.absent(),
     this.lastName = const Value.absent(),
     this.dob = const Value.absent(),
+    this.isActive = const Value.absent(),
   });
   EmployeeCompanion.insert({
     this.id = const Value.absent(),
@@ -120,6 +137,7 @@ class EmployeeCompanion extends UpdateCompanion<EmployeeData> {
     required String firstName,
     required String lastName,
     required DateTime dob,
+    this.isActive = const Value.absent(),
   })  : userName = Value(userName),
         firstName = Value(firstName),
         lastName = Value(lastName),
@@ -130,6 +148,7 @@ class EmployeeCompanion extends UpdateCompanion<EmployeeData> {
     Expression<String>? firstName,
     Expression<String>? lastName,
     Expression<DateTime>? dob,
+    Expression<int>? isActive,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -137,6 +156,7 @@ class EmployeeCompanion extends UpdateCompanion<EmployeeData> {
       if (firstName != null) 'first_name': firstName,
       if (lastName != null) 'last_name': lastName,
       if (dob != null) 'date_of_birth': dob,
+      if (isActive != null) 'is_active': isActive,
     });
   }
 
@@ -145,13 +165,15 @@ class EmployeeCompanion extends UpdateCompanion<EmployeeData> {
       Value<String>? userName,
       Value<String>? firstName,
       Value<String>? lastName,
-      Value<DateTime>? dob}) {
+      Value<DateTime>? dob,
+      Value<int?>? isActive}) {
     return EmployeeCompanion(
       id: id ?? this.id,
       userName: userName ?? this.userName,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
       dob: dob ?? this.dob,
+      isActive: isActive ?? this.isActive,
     );
   }
 
@@ -173,6 +195,9 @@ class EmployeeCompanion extends UpdateCompanion<EmployeeData> {
     if (dob.present) {
       map['date_of_birth'] = Variable<DateTime>(dob.value);
     }
+    if (isActive.present) {
+      map['is_active'] = Variable<int>(isActive.value);
+    }
     return map;
   }
 
@@ -183,7 +208,8 @@ class EmployeeCompanion extends UpdateCompanion<EmployeeData> {
           ..write('userName: $userName, ')
           ..write('firstName: $firstName, ')
           ..write('lastName: $lastName, ')
-          ..write('dob: $dob')
+          ..write('dob: $dob, ')
+          ..write('isActive: $isActive')
           ..write(')'))
         .toString();
   }
@@ -222,9 +248,14 @@ class $EmployeeTable extends Employee
   late final GeneratedColumn<DateTime> dob = GeneratedColumn<DateTime>(
       'date_of_birth', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  final VerificationMeta _isActiveMeta = const VerificationMeta('isActive');
+  @override
+  late final GeneratedColumn<int> isActive = GeneratedColumn<int>(
+      'is_active', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, userName, firstName, lastName, dob];
+      [id, userName, firstName, lastName, dob, isActive];
   @override
   String get aliasedName => _alias ?? 'employee';
   @override
@@ -261,6 +292,10 @@ class $EmployeeTable extends Employee
     } else if (isInserting) {
       context.missing(_dobMeta);
     }
+    if (data.containsKey('is_active')) {
+      context.handle(_isActiveMeta,
+          isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta));
+    }
     return context;
   }
 
@@ -280,6 +315,8 @@ class $EmployeeTable extends Employee
           .read(DriftSqlType.string, data['${effectivePrefix}last_name'])!,
       dob: attachedDatabase.options.types.read(
           DriftSqlType.dateTime, data['${effectivePrefix}date_of_birth'])!,
+      isActive: attachedDatabase.options.types
+          .read(DriftSqlType.int, data['${effectivePrefix}is_active']),
     );
   }
 

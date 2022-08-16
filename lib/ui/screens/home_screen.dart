@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_sqflite_demo/ui/screens/By%20using%20notifier/employee_notifier_stream.dart';
 import 'package:flutter_sqflite_demo/ui/screens/employee_future.dart';
+import 'package:flutter_sqflite_demo/ui/screens/By%20using%20notifier/employee_notifier_future.dart';
 import 'package:flutter_sqflite_demo/ui/screens/employee_stream.dart';
 
 import '../../routes/routes.dart';
@@ -16,7 +18,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final pages = [
     const EmployeeFutureScreen(),
+    // const EmployeeNotifierFutureScreen(),
     const EmployeeStreamScreen(),
+    // const EmployeeNotifierStreamScreen(),
   ];
 
   @override
@@ -32,31 +36,31 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Navigator.pushNamed(context, Routes.add_employee),
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Add Employee'),
+        label: const Text('Add'),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: index,
-        onTap: (value){
-          setState((){
+        onTap: (value) {
+          setState(() {
             index = value;
           });
         },
         items: const [
-        BottomNavigationBarItem(
-          icon:Icon(Icons.list),
-          activeIcon: Icon(Icons.list),
-          label: "Employee Future",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.list),
-          activeIcon: Icon(Icons.list),
-          label: "Employee Stream",
-        ),
-      ],),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.list),
+            activeIcon: Icon(Icons.list),
+            label: "Employee Future",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.list),
+            activeIcon: Icon(Icons.list),
+            label: "Employee Stream",
+          ),
+        ],
+      ),
       body: pages[index],
     );
   }

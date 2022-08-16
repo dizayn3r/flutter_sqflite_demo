@@ -14,7 +14,6 @@ LazyDatabase _openConnection() {
     final file = File(
       path.join(dbFolder.path, 'employee.sqlite'),
     );
-
     return NativeDatabase(file);
   });
 }
@@ -24,14 +23,25 @@ class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onUpgrade: (m,from,to) async {
+      if(from ==1){
+        await m.addColumn(employee, employee.isActive);
+      }
+    }
+  );
+//-----------------------------------------Database Query---------------------------------------
+
 
   //Get the list of employee
   Future<List<EmployeeData>> getEmployees() async {
     return await select(employee).get();
   }
 
-  Stream<List<EmployeeData>> getEmployeesStream() {
+  Stream<List<EmployeeData>> getEmployeeStream() {
     return select(employee).watch();
   }
 
