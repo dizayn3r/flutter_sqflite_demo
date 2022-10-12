@@ -34,7 +34,6 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: Routes.home,
       onGenerateRoute: Routes.getRoute,
-      home: const HomeScreen(),
     );
   }
 }
